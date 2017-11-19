@@ -1,8 +1,17 @@
 #include <iostream>
 #include <stdlib.h>
 #include <fstream>
+#include <random>
 
 using namespace std;
+
+struct asteroids{
+  double x, y, mass;
+};
+
+struct planets{
+  double x, y;
+};
 
 int main(int argc, char const *argv[]) {
   int num_asteroids = atoi(argv[1]);
@@ -31,6 +40,32 @@ int main(int argc, char const *argv[]) {
     return -1;
   }
 
+  asteroids ast[num_asteroids];
+  planets pl[num_planets];
+
+
+  // Random distributions
+  default_random_engine re{seed};
+  uniform_real_distribution<double> xdist{0.0, std::nextafter(width,
+    std :: numeric_limits<double>::max())};
+  uniform_real_distribution<double> ydist{0.0, std::nextafter(height,
+    std :: numeric_limits<double>::max())};
+  normal_distribution<double> mdist{mass, sdm};
+
+  for (int i = 0; i < num_asteroids; i++) {
+    ast[i].x = xdist(re);
+    ast[i].y = ydist(re);
+    ast[i].mass = mdist(re);
+  }
+
+  for (int i = 0; i < num_planets; i++) {
+    pl[i].x = xdist(re);
+    pl[i].y = ydist(re);
+  }
+
+  double ray_x = xdist(re);
+  double ray_y = ydist(re);
+
   ofstream myFile ("init_conf.txt");
   if(myFile.is_open()){
     myFile << num_asteroids << " ";
@@ -38,6 +73,21 @@ int main(int argc, char const *argv[]) {
     myFile << num_planets << " ";
     myFile << pos_ray << " ";
     myFile << seed << endl;
+
+    for(int i = 0; i < num_asteroids; i++){
+      myFile << ast[i].x << " ";
+      myFile << ast[i].y << " ";
+      myFile << ast[i].mass << endl;
+    }
+
+    for(int i = 0; i < num_planets; i++){
+      myFile << pl[i].x << " ";
+      myFile << pl[i].y << endl;
+    }
+
+    myFile << ray_x << " ";
+    myFile << ray_y << endl;
+
   }
 
   else{
