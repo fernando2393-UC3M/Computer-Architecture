@@ -13,22 +13,22 @@ int main(int argc, char const *argv[]) {
 
   if(num_asteroids<0){
     cerr << "Number of asteroids is lower than zero!" << endl;
-    return 0;
+    return -1;
   }
 
   if(num_iterations<0){
     cerr << "Number of iterations is lower than zero!" << endl;
-    return 0;
+    return -1;
   }
 
   if(num_planets<0){
     cerr << "Number of planets is lower than zero!" << endl;
-    return 0;
+    return -1;
   }
 
   if(seed == 0 || seed <0){
     cerr << "Seed is equal or lower than zero!" << endl;
-    return 0;
+    return -1;
   }
 
   ofstream myFile ("init_conf.txt");
@@ -37,7 +37,7 @@ int main(int argc, char const *argv[]) {
     myFile << num_iterations << " ";
     myFile << num_planets << " ";
     myFile << pos_ray << " ";
-    myFile << seed;
+    myFile << seed << endl;
   }
 
   else{
