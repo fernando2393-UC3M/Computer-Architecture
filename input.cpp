@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <random>
+#include <math.h>
 
 using namespace std;
 
@@ -115,6 +116,25 @@ int main(int argc, char const *argv[]) {
   else{
     cerr << "Error creating the file!" << endl;
   }
+
+  //-------------------------HERE STARTS THE COMPUTATION OF FORCES//-------------------------//
+
+  //Here we need to create an array attraction of size num_asteroids+num_planets-1
+
+  for(int i = 0; i < num_asteroids; i++){
+    for(int j = 0; j < (num_asteroids+num_planets-1); j++){
+      if(j!=i){
+        if(j<num_asteroids){
+          ast[i].attraction[j] = sqrt(pow(ast[i].x-ast[j].x,2)+pow(ast[i].y-ast[j].y,2));
+        }
+        else{
+          ast[i].attraction[j] = sqrt(pow(ast[i].x-pl[j-(num_asteroids-1)].x,2)+pow(ast[i].y-pl[j-(num_asteroids-1)].y,2));
+        }
+      }
+    }
+  }
+
+
 
   return 0;
 }
