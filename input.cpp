@@ -23,7 +23,7 @@ struct planets{
   double x, y;
 };
 
-void random(int seed, int num_asteroids, int num_planets, struct asteroids ast[], struct planets pl[], double ray_x, double ray_y){
+void random(const int seed, int num_asteroids, int num_planets, struct asteroids ast[], struct planets pl[], double ray_x, double ray_y){
   std::default_random_engine re{seed};
   std::uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
   std::uniform_real_distribution<double> ydist{0.0, std::nextafter(height, std::numeric_limits<double>::max())};
@@ -50,25 +50,33 @@ int main(int argc, char const *argv[]) {
   int num_iterations = atoi(argv[2]);
   int num_planets = atoi(argv[3]);
   double pos_ray = atoi(argv[4]);
-  int seed = atoi(argv[5]);
+  const int seed = atoi(argv[5]);
 
   if(num_asteroids<0){
-    cerr << "Number of asteroids is lower than zero!" << endl;
+    cerr << "nasteroids-seq: Wrong arguments." << endl;
+    cerr << "Correct use:" << endl;
+    cerr << "nasteroids-seq num_asteroids num_iterations num_planets pos_ray seed" << endl;
     return -1;
   }
 
   if(num_iterations<0){
-    cerr << "Number of iterations is lower than zero!" << endl;
+    cerr << "nasteroids-seq: Wrong arguments." << endl;
+    cerr << "Correct use:" << endl;
+    cerr << "nasteroids-seq num_asteroids num_iterations num_planets pos_ray seed" << endl;
     return -1;
   }
 
   if(num_planets<0){
-    cerr << "Number of planets is lower than zero!" << endl;
+    cerr << "nasteroids-seq: Wrong arguments." << endl;
+    cerr << "Correct use:" << endl;
+    cerr << "nasteroids-seq num_asteroids num_iterations num_planets pos_ray seed" << endl;
     return -1;
   }
 
   if(seed == 0 || seed <0){
-    cerr << "Seed is equal or lower than zero!" << endl;
+    cerr << "nasteroids-seq: Wrong arguments." << endl;
+    cerr << "Correct use:" << endl;
+    cerr << "nasteroids-seq num_asteroids num_iterations num_planets pos_ray seed" << endl;
     return -1;
   }
 
