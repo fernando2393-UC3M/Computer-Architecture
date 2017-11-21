@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/fernando/Desktop/Universidad/Tercero/Computer Architecture/Practices/ARCOS/input.cpp
+iostream
+-
+stdlib.h
+-
+fstream
+-
+random
+-
+
