@@ -5,14 +5,14 @@
 
 using namespace std;
 
-const double gravity = 6.674e-5;
-const double interval = 0.1;
-const double dmin = 2.0;
-const double width = 200;
-const double height = 200;
-const double ray_width = 4;
-const double mass = 1000;
-const double sdm = 50;
+const double GRAVITY = 6.674e-5;
+const double INTERVAL = 0.1;
+const double DMIN = 2.0;
+const double WIDTH = 200;
+const double HEIGHT = 200;
+const double RAY_WIDTH = 4;
+const double MASS = 1000;
+const double SDM = 50;
 
 
 struct asteroids{
@@ -25,9 +25,9 @@ struct planets{
 
 void random(const int seed, int num_asteroids, int num_planets, struct asteroids ast[], struct planets pl[], double ray_x, double ray_y){
   std::default_random_engine re{seed};
-  std::uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
-  std::uniform_real_distribution<double> ydist{0.0, std::nextafter(height, std::numeric_limits<double>::max())};
-  std::normal_distribution<double> mdist{mass, sdm};
+  std::uniform_real_distribution<double> xdist{0.0, std::nextafter(WIDTH, std::numeric_limits<double>::max())};
+  std::uniform_real_distribution<double> ydist{0.0, std::nextafter(HEIGHT, std::numeric_limits<double>::max())};
+  std::normal_distribution<double> mdist{MASS, SDM};
 
   for (int i = 0; i < num_asteroids; i++) {
     ast[i].x = xdist(re);
