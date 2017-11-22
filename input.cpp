@@ -110,6 +110,14 @@ int checkRebound(double x, double y){
     return 0;
 }
 
+void releaseGalactus(double target, asteroids ast[]){
+  for(int i=0; i<ast.length;i++){
+    if(ast[i].y==target){
+      ast.erase(ast.begin()+i);
+    }
+  }
+}
+
 int main(int argc, char const *argv[]) {
   int num_asteroids = atoi(argv[1]);
   int num_iterations = atoi(argv[2]);
@@ -282,7 +290,18 @@ int main(int argc, char const *argv[]) {
                     ast[i].y=ast[i].y+(ast[i].vy*t);
       }
     }
+    releaseGalactus(pos_ray, ast);
   }
+
+  //After computing the movement due to the forces, the laser ray must be
+  //activated, locating all the asteroids that are inside its range of influence.
+
+  //All asteroids whose vertical coordinate is at a distance less or equal
+  //than 2 from the position of the ray (in the y axis) will be destroyed.
+
+  //The destruction of these asteroids imply the removal of these asteroids from the program
+
+
   //OUTPUT DATA
   ofstream myFile2 ("out.txt");
   if(myFile2.is_open()){
