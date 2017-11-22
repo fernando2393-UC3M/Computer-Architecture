@@ -31,12 +31,14 @@ void random(const unsigned int seed, int num_asteroids, int num_planets, std::ve
         std::normal_distribution<double> mdist{MASS, SDM};
 
         for (int i = 0; i < num_asteroids; i++) {
+                ast.push_back(asteroids());
                 ast[i].x = xdist(re);
                 ast[i].y = ydist(re);
                 ast[i].mass = mdist(re);
         }
 
         for (int i = 0; i < num_planets; i++) {
+                pl.push_back(planets());
                 pl[i].x = xdist(re);
                 pl[i].y = ydist(re);
         }
