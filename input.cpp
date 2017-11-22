@@ -76,13 +76,13 @@ double computeForceY(double ma, double mb, double dist, double ang){
   return f;
 }
 
-double computeAcc(int length, double *vforces){
+double computeAcc(int length, double *vforces, double mass){
   double acc;
 
   for(int i=0; i<length; i++){
     acc=acc+vforces[i];
   }
-  acc=acc/m;
+  acc=acc/mass;
 
   return acc;
 }
@@ -217,7 +217,8 @@ int main(int argc, char const *argv[]) {
 
   //SIMULATION
   for(int t=0; t<num_iterations; t++){
-    acc=0;
+    accx=0;
+    accy=0;
     for(int i=0; i< num_asteroids; i++){
       for(int j=0; j< num_asteroids+num_planets; j++){
         printf("ITERATION: i=%i  j=%i\n", i, j);
@@ -254,8 +255,8 @@ int main(int argc, char const *argv[]) {
       }
       //Results should be updated once the rows are filled so all the forces acting on an asteroid are computed
       //acc
-      accx=computeAcc(i, forcesMatrixX[i]);
-      accy=computeAcc(i, forcesMatrixY[i]);
+      accx=computeAcc(i, forcesMatrixX[i], ast[i].mass);
+      accy=computeAcc(i, forcesMatrixY[i], ast[i].mass);
       //vel
       ast[i].vx=ast[i].vx+(accx*t);
       ast[i].vy=ast[i].vy+(accy*t);
@@ -265,15 +266,15 @@ int main(int argc, char const *argv[]) {
                   ast[i].y=ast[i].y+(ast[i].vy*t);
                   ast[i].vx=ast[i].vx*(-1);
                   break; //x<=0
-          case 2; ast[i].x=WIDTH-2;
+          case 2: ast[i].x=WIDTH-2;
                   ast[i].y=ast[i].y+(ast[i].vy*t);
                   ast[i].vx=ast[i].vx*(-1);
                   break; //x>=WIDTH
-          case 3; ast[i].x=ast[i].x+(ast[i].vx*t);
+          case 3: ast[i].x=ast[i].x+(ast[i].vx*t);
                   ast[i].y=2;
                   ast[i].vy=ast[i].vy*(-1);
                   break; //y<=0
-          case 4; ast[i].x=ast[i].x+(ast[i].vx*t);
+          case 4: ast[i].x=ast[i].x+(ast[i].vx*t);
                   ast[i].y=HEIGHT-2;
                   ast[i].vy=ast[i].vy*(-1);
                   break; //y>=HEIGHT
