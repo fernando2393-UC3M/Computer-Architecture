@@ -97,8 +97,8 @@ int main(int argc, char const *argv[]) {
         if(myFile.is_open()) {
 
                 //This adjust the precision of the numbers written in the output file
-                cout.setf(ios::fixed,ios::floatfield);
-                cout.precision(3);
+                myFile.setf(ios::fixed,ios::floatfield);
+                myFile.precision(3);
 
                 myFile << num_asteroids << " ";
                 myFile << num_iterations << " ";
@@ -117,7 +117,7 @@ int main(int argc, char const *argv[]) {
                         myFile << pl[i].y << endl;
                 }
 
-                myFile << "0.000" << " ";
+                myFile << 0.000 << " ";
                 myFile << pos_ray << endl;
 
         }
