@@ -76,6 +76,40 @@ double computeForceY(double ma, double mb, double dist, double ang){
   return f;
 }
 
+double computeAcc(int length, double *vforces){
+  double acc;
+
+  for(int i=0; i<length; i++){
+    acc=acc+vforces[i];
+  }
+  acc=acc/m;
+
+  return acc;
+}
+
+int checkRebound(double x, double y){
+    int id;
+
+    if(x<=0){
+      id=1;
+      return id;
+    }
+    if(x>=WIDTH){
+      id=2;
+      return id;
+    }
+    if(y<=0){
+      id=3;
+      return id;
+    }
+    if(y>=HEIGHT){
+      id=4;
+      return id;
+    }
+
+    return 0;
+}
+
 int main(int argc, char const *argv[]) {
   int num_asteroids = atoi(argv[1]);
   int num_iterations = atoi(argv[2]);
@@ -178,9 +212,12 @@ int main(int argc, char const *argv[]) {
   double angleMatrix[num_asteroids][num_asteroids+num_planets]; //Angle of body i with respect to body j
   double forcesMatrixX[num_asteroids][num_asteroids+num_planets]; //Force X of body i with respect to body j
   double forcesMatrixY[num_asteroids][num_asteroids+num_planets]; //Force X of body i with respect to body j
+  double accx; //acceleration
+  double accy;
 
   //SIMULATION
   for(int t=0; t<num_iterations; t++){
+    acc=0;
     for(int i=0; i< num_asteroids; i++){
       for(int j=0; j< num_asteroids+num_planets; j++){
         printf("ITERATION: i=%i  j=%i\n", i, j);
@@ -192,7 +229,7 @@ int main(int argc, char const *argv[]) {
               //Angle
               angleMatrix[i][j]=computeAngle(ast[i].x, ast[i].y, ast[j].x, ast[j].y);
               //Force
-              if(forcesMatrixX==0 && forcesMatrixY==0){ //Check if it has not been previously set
+              if(forcesMatrixX[i][j]==0 && forcesMatrixY[i][j]==0){ //Check if it has not been previously set
                 forcesMatrixX[i][j]=computeForceX(ast[i].mass, ast[j].mass, distMatrix[i][j], angleMatrix[i][j]);
                 forcesMatrixY[i][j]=computeForceY(ast[i].mass, ast[j].mass, distMatrix[i][j], angleMatrix[i][j]);
                 //Attraction force for second asteroid
@@ -215,12 +252,35 @@ int main(int argc, char const *argv[]) {
           }
         }
       }
+      //Results should be updated once the rows are filled so all the forces acting on an asteroid are computed
+      //acc
+      accx=computeAcc(i, forcesMatrixX[i]);
+      accy=computeAcc(i, forcesMatrixY[i]);
+      //vel
+      ast[i].vx=ast[i].vx+(accx*t);
+      ast[i].vy=ast[i].vy+(accy*t);
+      //pos
+      switch(checkRebound(ast[i].x, ast[i].y)) {
+          case 1: ast[i].x=2;
+                  ast[i].y=ast[i].y+(ast[i].vy*t);
+                  ast[i].vx=ast[i].vx*(-1);
+                  break; //x<=0
+          case 2; ast[i].x=WIDTH-2;
+                  ast[i].y=ast[i].y+(ast[i].vy*t);
+                  ast[i].vx=ast[i].vx*(-1);
+                  break; //x>=WIDTH
+          case 3; ast[i].x=ast[i].x+(ast[i].vx*t);
+                  ast[i].y=2;
+                  ast[i].vy=ast[i].vy*(-1);
+                  break; //y<=0
+          case 4; ast[i].x=ast[i].x+(ast[i].vx*t);
+                  ast[i].y=HEIGHT-2;
+                  ast[i].vy=ast[i].vy*(-1);
+                  break; //y>=HEIGHT
+          default:  ast[i].x=ast[i].x+(ast[i].vx*t);
+                    ast[i].y=ast[i].y+(ast[i].vy*t);
+      }
     }
-
-    //Results should be updated once the matrix is filled as if not the i+1 asteroid in t would be taking into account the t+1 position of the i asteroid
-    //Rebound(destance check + velocity) should be computed when the asteroid is about to move
-
-
   }
   //OUTPUT DATA
   ofstream myFile2 ("out.txt");
