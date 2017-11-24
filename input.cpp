@@ -132,8 +132,8 @@ int checkRebound(double x, double y){
 void releaseGalactus(double target, std::vector<asteroids> &ast){
         for(unsigned long i=0; i<ast.size(); i++) {
                 if(ast[i].y==target || ast[i].y==target+(RAY_WIDTH/2) || ast[i].y==target-(RAY_WIDTH/2)) {
-                    cout << "Asteroid" << i << " was devoured by GALACTUS" << endl;
-                        ast.erase(ast.begin()+i);
+                    cout << "Asteroid " << i << " was devoured by GALACTUS" << endl;
+                    ast.erase(ast.begin()+i);
                 }
         }
 }
@@ -224,47 +224,17 @@ int main(int argc, char const *argv[]) {
         double accx; //acceleration
         double accy;
 
-        // double **distMatrix;
-        // distMatrix= new double *[num_asteroids];
-        // for(int i = 0;i<num_asteroids;i++){
-        //   distMatrix[i] = new double[num_asteroids+num_planets];
-        // }
-        //
-        // double **forcesMatrixX;
-        // forcesMatrixX= new double *[num_asteroids];
-        // for(int i = 0;i<num_asteroids;i++){
-        //   forcesMatrixX[i] = new double[num_asteroids+num_planets];
-        // }
-        //
-        // double **angleMatrix;
-        // angleMatrix= new double *[num_asteroids];
-        // for(int i = 0;i<num_asteroids;i++){
-        //   angleMatrix[i] = new double[num_asteroids+num_planets];
-        // }
-        //
-        // double **forcesMatrixY;
-        // forcesMatrixY= new double *[num_asteroids];
-        // for(int i = 0;i<num_asteroids;i++){
-        //   forcesMatrixY[i] = new double[num_asteroids+num_planets];
-        // }
         int col=num_asteroids+num_planets;
         std::vector<std::vector<double> >distMatrix(num_asteroids, vector<double>(col));
         std::vector<std::vector<double> >angleMatrix(num_asteroids, vector<double>(col));
         std::vector<std::vector<double> >forcesMatrixX(num_asteroids, vector<double>(col));
         std::vector<std::vector<double> >forcesMatrixY(num_asteroids, vector<double>(col));
 
-// for(int i=0; i<num_asteroids; i++){
-//   for(int j=0; j<num_asteroids+num_planets;j++){
-//     cout << "distance: " << distMatrix[i][j]<<" i: " << i << "j: " <<j<<endl;
-//   }
-// }
-
         //SIMULATION
         for(int t=0; t<num_iterations; t++){
           accx=0;
           accy=0;
           for(int i=0; i< num_asteroids; i++){
-            cout << i << endl;
             for(int j=0; j<(num_asteroids+num_planets); j++){
               if(i!=j){ //Avoid evaluate i with itself
                 if(j<num_asteroids){ //ASTEROID
@@ -300,7 +270,6 @@ int main(int argc, char const *argv[]) {
                 }
               }
             }
-            cout << "BUCLE J HA ACABADO"<< endl;
             //Results should be updated once the rows are filled so all the forces acting on an asteroid are computed
             //acc
             accx=computeAcc(i, forcesMatrixX[i], ast[i].mass);
@@ -332,19 +301,6 @@ int main(int argc, char const *argv[]) {
           }
           releaseGalactus(pos_ray, ast);
         }
-
-        // for( int i = 0 ; i < num_asteroids ; i++ ){
-        //     delete[] distMatrix[i]; // delete array within matrix
-        //     delete[] angleMatrix[i];
-        //     delete[] forcesMatrixX[i];
-        //     delete[] forcesMatrixY[i];
-        // }
-        //
-        // delete[] distMatrix;
-        // delete[] forcesMatrixX;
-        // delete[] forcesMatrixY;
-        // delete[] angleMatrix;
-
 
         //After computing the movement due to the forces, the laser ray must be
         //activated, locating all the asteroids that are inside its range of influence.
