@@ -73,7 +73,7 @@ double computeForceX(double ma, double mb, double dist, double ang){
         double f;
 
         f=GRAVITY*ma*mb;
-        f=f/dist;
+        f=f/pow(dist, 2);
         f=f*cos(ang);
 
         if(f>MAXFORCE) {
