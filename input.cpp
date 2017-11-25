@@ -58,6 +58,7 @@ void random(const unsigned int seed, int num_asteroids, int num_planets, std::ve
                         pl[i].y = ydist(re);
                         for (int j = 0; j < aux; j++) {
                                 if (pl[j].x == pl[aux1].x && pl[j].y == pl[aux1].y) {
+                                        pl.erase(pl.begin()+i);
                                         i--;
                                 }
                         }
@@ -68,6 +69,7 @@ void random(const unsigned int seed, int num_asteroids, int num_planets, std::ve
                         pl[i].y = HEIGHT;
                         for (int j = 0; j < aux; j++) {
                                 if (pl[j].x == pl[aux1].x && pl[j].y == pl[aux1].y) {
+                                        pl.erase(pl.begin()+i);
                                         i--;
                                 }
                         }
@@ -78,6 +80,7 @@ void random(const unsigned int seed, int num_asteroids, int num_planets, std::ve
                         pl[i].y = xdist(re);
                         for (int j = 0; j < aux; j++) {
                                 if (pl[j].x == pl[aux1].x && pl[j].y == pl[aux1].y) {
+                                        pl.erase(pl.begin()+i);
                                         i--;
                                 }
                         }
@@ -88,6 +91,7 @@ void random(const unsigned int seed, int num_asteroids, int num_planets, std::ve
                         pl[i].y = 0;
                         for (int j = 0; j < aux; j++) {
                                 if (pl[j].x == pl[aux1].x && pl[j].y == pl[aux1].y) {
+                                        pl.erase(pl.begin()+i);
                                         i--;
                                 }
                         }
