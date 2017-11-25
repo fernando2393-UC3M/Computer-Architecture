@@ -3,15 +3,15 @@
 #include <fstream>
 #include <random>
 #include <math.h>
-
+#include <vector>
 using namespace std;
 
 const double GRAVITY = 6.674e-5;
-//const double INTERVAL = 0.1;
+const double INTERVAL = 0.1;
 const double DMIN = 2.0;
 const double WIDTH = 200;
 const double HEIGHT = 200;
-//const double RAY_WIDTH = 4;
+const double RAY_WIDTH = 4;
 const double MASS = 1000;
 const double SDM = 50;
 const double MAXFORCE = 200;
@@ -36,12 +36,66 @@ void random(const unsigned int seed, int num_asteroids, int num_planets, std::ve
                 ast[i].x = xdist(re);
                 ast[i].y = ydist(re);
                 ast[i].mass = mdist(re);
+                //Now check for repeated position -> Remove and recalculate
+                for(int j = 0; j < i; j++) {
+                        if(ast[j].x == ast[i].x && ast[j].y == ast[i].y) {
+                                ast.erase(ast.begin()+i);
+                                i--;
+                        }
+                }
         }
 
         for (int i = 0; i < num_planets; i++) {
-                pl.push_back(planets());
-                pl[i].x = xdist(re);
-                pl[i].y = ydist(re);
+                //Planets position
+                int rem = i%4;
+                int aux = i;
+                int aux1 = i;
+                switch (rem) {
+                //This generates planets in the borders and checks if the position is repeated, then iteration is done again
+                case 0:
+                        pl.push_back(planets());
+                        pl[i].x = 0;
+                        pl[i].y = ydist(re);
+                        for (int j = 0; j < aux; j++) {
+                                if (pl[j].x == pl[aux1].x && pl[j].y == pl[aux1].y) {
+                                        i--;
+                                }
+                        }
+                        break;
+                case 1:
+                        pl.push_back(planets());
+                        pl[i].x = xdist(re);
+                        pl[i].y = HEIGHT;
+                        for (int j = 0; j < aux; j++) {
+                                if (pl[j].x == pl[aux1].x && pl[j].y == pl[aux1].y) {
+                                        i--;
+                                }
+                        }
+                        break;
+                case 2:
+                        pl.push_back(planets());
+                        pl[i].x = WIDTH;
+                        pl[i].y = xdist(re);
+                        for (int j = 0; j < aux; j++) {
+                                if (pl[j].x == pl[aux1].x && pl[j].y == pl[aux1].y) {
+                                        i--;
+                                }
+                        }
+                        break;
+                case 3:
+                        pl.push_back(planets());
+                        pl[i].x = xdist(re);
+                        pl[i].y = 0;
+                        for (int j = 0; j < aux; j++) {
+                                if (pl[j].x == pl[aux1].x && pl[j].y == pl[aux1].y) {
+                                        i--;
+                                }
+                        }
+                        break;
+                default:
+                        cout << "Invalid position" << endl;
+                }
+                pl[i].mass = 10 * mdist(re);
         }
 }
 
@@ -51,7 +105,6 @@ double computeDistance(double xa, double ya, double xb, double yb){
         distance=pow(xa-xb,2)+pow(ya-yb,2);
         distance=sqrt(distance);
 
-        cout << "DISTANCE: " << distance << endl;
         return distance;
 }
 
@@ -73,7 +126,7 @@ double computeForceX(double ma, double mb, double dist, double ang){
         double f;
 
         f=GRAVITY*ma*mb;
-        f=f/dist;
+        f=f/pow(dist, 2);
         f=f*cos(ang);
 
         if(f>MAXFORCE) {
@@ -131,14 +184,14 @@ int checkRebound(double x, double y){
 
 void releaseGalactus(double target, std::vector<asteroids> &ast){
         for(unsigned long i=0; i<ast.size(); i++) {
-                if(ast[i].y==target) {
+                if(ast[i].y >= (target - (RAY_WIDTH/2)) && ast[i].y <= (target + (RAY_WIDTH/2))) {
                         ast.erase(ast.begin()+i);
+                        cout << "Asteroid " << i << " was devoured by GALACTUS" << endl;
                 }
         }
 }
 
 int main(int argc, char const *argv[]) {
-
         if(argc != 6) {
                 cerr << "nasteroids-seq: Wrong arguments." << endl;
                 cerr << "Correct use:" << endl;
@@ -179,7 +232,6 @@ int main(int argc, char const *argv[]) {
                 cerr << "nasteroids-seq num_asteroids num_iterations num_planets pos_ray seed" << endl;
                 return -1;
         }
-
 
         std::vector<asteroids> ast;
         std::vector<planets> pl;
@@ -222,81 +274,85 @@ int main(int argc, char const *argv[]) {
         }
 
         //-------------------------HERE STARTS THE COMPUTATION OF FORCES//-------------------------//
-        std::vector<vector<double>> distMatrix;     //Distance of body i with respect to body j
-        std::vector<vector<double>> angleMatrix;    //Angle of body i with respect to body j
-        std::vector<vector<double>> forcesMatrixX;  //Force X of body i with respect to body j
-        std::vector<vector<double>> forcesMatrixY;  //Force X of body i with respect to body j
         double accx; //acceleration
         double accy;
 
-        //SIMULATION
-        for(int t=0; t<num_iterations; t++){
-          accx=0;
-          accy=0;
-          for(int i=0; i< num_asteroids; i++){
-            for(int j=0; j< num_asteroids+num_planets; j++){
-              cout << "ITERATION: i= "<< i <<" j= " << j << endl;
-              if(i!=j){ //Avoid evaluate i with itself
-                if(i<num_asteroids){ //ASTEROID
-                  //Dist
-                  distMatrix[i][j]=computeDistance(ast[i].x, ast[i].y, ast[j].x, ast[j].y);
-                  if(distMatrix[i][j]<DMIN){
-                    //Angle
-                    angleMatrix[i][j]=computeAngle(ast[i].x, ast[i].y, ast[j].x, ast[j].y);
-                    //Force
-                    if(forcesMatrixX[i][j]==0 && forcesMatrixY[i][j]==0){ //Check if it has not been previously set
-                      forcesMatrixX[i][j]=computeForceX(ast[i].mass, ast[j].mass, distMatrix[i][j], angleMatrix[i][j]);
-                      forcesMatrixY[i][j]=computeForceY(ast[i].mass, ast[j].mass, distMatrix[i][j], angleMatrix[i][j]);
-                      //Attraction force for second asteroid
-                      forcesMatrixX[j][i]=forcesMatrixX[i][j]*(-1);
-                      forcesMatrixY[j][i]=forcesMatrixX[i][j]*(-1);
-                    }
-                  }
-                }
+        int col=num_asteroids+num_planets;
+        std::vector<std::vector<double> >distMatrix(num_asteroids, vector<double>(col));
+        std::vector<std::vector<double> >angleMatrix(num_asteroids, vector<double>(col));
+        std::vector<std::vector<double> >forcesMatrixX(num_asteroids, vector<double>(col));
+        std::vector<std::vector<double> >forcesMatrixY(num_asteroids, vector<double>(col));
 
-                else{ //PLANET
-                  //Dist
-                  distMatrix[i][j]=computeDistance(ast[i].x, ast[i].y, pl[j].x, pl[j].y);
-                  if(distMatrix[i][j]>DMIN){
-                    //Angle
-                    angleMatrix[i][j]=computeAngle(ast[i].x, ast[i].y, pl[j].x, pl[j].y);
-                    //Force
-                    forcesMatrixX[i][j]=computeForceX(ast[i].mass, pl[j].mass, distMatrix[i][j], angleMatrix[i][j]);
-                    forcesMatrixY[i][j]=computeForceY(ast[i].mass, pl[j].mass, distMatrix[i][j], angleMatrix[i][j]);
-                  }
+        //SIMULATION
+        for(int t=0; t<num_iterations; t++) {
+                accx=0;
+                accy=0;
+                for(int i=0; i< num_asteroids; i++) {
+                        for(int j=0; j<(num_asteroids+num_planets); j++) {
+                                if(i!=j) { //Avoid evaluate i with itself
+                                        if(j<num_asteroids) { //ASTEROID
+                                                //Dist
+                                                distMatrix[i][j]=computeDistance(ast[i].x, ast[i].y, ast[j].x, ast[j].y);
+                                                if(distMatrix[i][j]>DMIN) {
+                                                        //Angle
+                                                        angleMatrix[i][j]=computeAngle(ast[i].x, ast[i].y, ast[j].x, ast[j].y);
+                                                        //Force
+                                                        if(forcesMatrixX[i][j]==0 && forcesMatrixY[i][j]==0) { //Check if it has not been previously set
+                                                                forcesMatrixX[i][j]=computeForceX(ast[i].mass, ast[j].mass, distMatrix[i][j], angleMatrix[i][j]);
+                                                                forcesMatrixY[i][j]=computeForceY(ast[i].mass, ast[j].mass, distMatrix[i][j], angleMatrix[i][j]);
+                                                                //Attraction force for second asteroid
+                                                                forcesMatrixX[j][i]=forcesMatrixX[i][j]*(-1);
+                                                                forcesMatrixY[j][i]=forcesMatrixY[i][j]*(-1);
+                                                        }
+                                                }
+                                        }
+                                        else{ //PLANET
+                                                //Dist
+                                                distMatrix[i][j]=computeDistance(ast[i].x, ast[i].y, pl[j-num_asteroids].x, pl[j-num_asteroids].y);
+
+                                                if(distMatrix[i][j]>DMIN) {
+                                                        //Angle
+                                                        angleMatrix[i][j]=computeAngle(ast[i].x, ast[i].y, pl[j-num_asteroids].x, pl[j-num_asteroids].y);
+
+                                                        //Force
+                                                        forcesMatrixX[i][j]=computeForceX(ast[i].mass, pl[j-num_asteroids].mass, distMatrix[i][j], angleMatrix[i][j]);
+
+                                                        forcesMatrixY[i][j]=computeForceY(ast[i].mass, pl[j-num_asteroids].mass, distMatrix[i][j], angleMatrix[i][j]);
+
+                                                }
+                                        }
+                                }
+                        }
+                        //Results should be updated once the rows are filled so all the forces acting on an asteroid are computed
+                        //acc
+                        accx=computeAcc(i, forcesMatrixX[i], ast[i].mass);
+                        accy=computeAcc(i, forcesMatrixY[i], ast[i].mass);
+                        //vel
+                        ast[i].vx=ast[i].vx+(accx*INTERVAL);
+                        ast[i].vy=ast[i].vy+(accy*INTERVAL);
+                        //pos
+                        switch(checkRebound(ast[i].x, ast[i].y)) {
+                        case 1: ast[i].x=2;
+                                ast[i].y=ast[i].y+(ast[i].vy*INTERVAL);
+                                ast[i].vx=ast[i].vx*(-1);
+                                break; //x<=0
+                        case 2: ast[i].x=WIDTH-2;
+                                ast[i].y=ast[i].y+(ast[i].vy*INTERVAL);
+                                ast[i].vx=ast[i].vx*(-1);
+                                break; //x>=WIDTH
+                        case 3: ast[i].x=ast[i].x+(ast[i].vx*INTERVAL);
+                                ast[i].y=2;
+                                ast[i].vy=ast[i].vy*(-1);
+                                break; //y<=0
+                        case 4: ast[i].x=ast[i].x+(ast[i].vx*INTERVAL);
+                                ast[i].y=HEIGHT-2;
+                                ast[i].vy=ast[i].vy*(-1);
+                                break; //y>=HEIGHT
+                        default:  ast[i].x=ast[i].x+(ast[i].vx*INTERVAL);
+                                ast[i].y=ast[i].y+(ast[i].vy*INTERVAL);
+                        }
                 }
-              }
-            }
-            //Results should be updated once the rows are filled so all the forces acting on an asteroid are computed
-            //acc
-            accx=computeAcc(i, forcesMatrixX[i], ast[i].mass);
-            accy=computeAcc(i, forcesMatrixY[i], ast[i].mass);
-            //vel
-            ast[i].vx=ast[i].vx+(accx*t);
-            ast[i].vy=ast[i].vy+(accy*t);
-            //pos
-            switch(checkRebound(ast[i].x, ast[i].y)) {
-                case 1: ast[i].x=2;
-                        ast[i].y=ast[i].y+(ast[i].vy*t);
-                        ast[i].vx=ast[i].vx*(-1);
-                        break; //x<=0
-                case 2: ast[i].x=WIDTH-2;
-                        ast[i].y=ast[i].y+(ast[i].vy*t);
-                        ast[i].vx=ast[i].vx*(-1);
-                        break; //x>=WIDTH
-                case 3: ast[i].x=ast[i].x+(ast[i].vx*t);
-                        ast[i].y=2;
-                        ast[i].vy=ast[i].vy*(-1);
-                        break; //y<=0
-                case 4: ast[i].x=ast[i].x+(ast[i].vx*t);
-                        ast[i].y=HEIGHT-2;
-                        ast[i].vy=ast[i].vy*(-1);
-                        break; //y>=HEIGHT
-                default:  ast[i].x=ast[i].x+(ast[i].vx*t);
-                          ast[i].y=ast[i].y+(ast[i].vy*t);
-            }
-          }
-          releaseGalactus(pos_ray, ast);
+                releaseGalactus(pos_ray, ast);
         }
 
         //After computing the movement due to the forces, the laser ray must be
@@ -310,17 +366,19 @@ int main(int argc, char const *argv[]) {
 
         //OUTPUT DATA
         ofstream myFile2 ("out.txt");
-        if(myFile2.is_open()){
-          for(int i = 0; i < num_asteroids; i++){
-            myFile << ast[i].x << " ";
-            myFile << ast[i].y << " ";
-            myFile << ast[i].vx << " ";
-            myFile << ast[i].vy << " ";
-            myFile << ast[i].mass << endl;
-          }
+        myFile2.setf(ios::fixed,ios::floatfield);
+        myFile2.precision(3);
+        if(myFile2.is_open()) {
+                for(int i = 0; i < num_asteroids; i++) {
+                        myFile2 << ast[i].x << " ";
+                        myFile2 << ast[i].y << " ";
+                        myFile2 << ast[i].vx << " ";
+                        myFile2 << ast[i].vy << " ";
+                        myFile2 << ast[i].mass << endl;
+                }
         }
         else{
-          cerr << "Error creating the file!" << endl;
+                cerr << "Error creating the file!" << endl;
         }
 
         return 0;
