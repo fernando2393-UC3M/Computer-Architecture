@@ -18,7 +18,7 @@ const double MAXFORCE = 200;
 
 
 struct asteroids {
-        double x, y, vx,vy, ax, ay, mass;
+        double x, y, vx,vy, ax, ay, mass, id;
 };
 
 struct planets {
@@ -36,6 +36,7 @@ void random(const unsigned int seed, int num_asteroids, int num_planets, std::ve
                 ast[i].x = xdist(re);
                 ast[i].y = ydist(re);
                 ast[i].mass = mdist(re);
+                ast[i].id = i;
                 //Now check for repeated position -> Remove and recalculate
                 for(int j = 0; j < i; j++) {
                         if(ast[j].x == ast[i].x && ast[j].y == ast[i].y) {
@@ -194,13 +195,14 @@ void releaseGalactus(double target, std::vector<asteroids> &ast, int num_asteroi
         for(unsigned long i=0; i<aux; i++) {
                 if(ast[i].y >= (target - (RAY_WIDTH/2)) && ast[i].y <= (target + (RAY_WIDTH/2))) { //If asteroid is inside the range
                         aux--; //Reduce aux -> number of alive asteroids
+                        int id = ast[i].id;
                         ast.erase(ast.begin()+i); //Erase asteroid from vector
                         i--; //As number reduced, next asteroids go one position back, so iterate over the same position
                         counter++; //Increment counter of death asteroids by one
 
                         //EXPLAIN HERE WHY THE NUMBER IS INCORRECT
-                        
-                        cout << "Asteroid " << i + counter << " was devoured by GALACTUS" << endl; //Asteroid destroyed message, taking as number the one
+
+                        cout << "Asteroid " << id << " was devoured by GALACTUS" << endl; //Asteroid destroyed message, taking as number the one
                                                                                                    //it had over the initial number of asteroids in the universe
                 }
         }
