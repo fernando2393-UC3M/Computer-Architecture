@@ -100,6 +100,7 @@ double computeAcc(int length, std::vector<double> vforces, double mass){
 
         for(int i=0; i<length; i++) {
                 acc=acc+vforces[i];
+                cout<<"Force "<<i<<" is: "<< vforces[i]<<endl;
         }
         acc=acc/mass;
 
@@ -246,6 +247,7 @@ int main(int argc, char const *argv[]) {
                     //Force
                     if(forcesMatrixX[i][j]==0 && forcesMatrixY[i][j]==0){ //Check if it has not been previously set
                       forcesMatrixX[i][j]=computeForceX(ast[i].mass, ast[j].mass, distMatrix[i][j], angleMatrix[i][j]);
+                      cout << "Computing force X of asteroid: "<<j<<" over asteroid: "<<i<<" -->" << forcesMatrixX[i][j]<<endl;
                       forcesMatrixY[i][j]=computeForceY(ast[i].mass, ast[j].mass, distMatrix[i][j], angleMatrix[i][j]);
                       //Attraction force for second asteroid
                       forcesMatrixX[j][i]=forcesMatrixX[i][j]*(-1);
@@ -263,7 +265,7 @@ int main(int argc, char const *argv[]) {
 
                     //Force
                     forcesMatrixX[i][j]=computeForceX(ast[i].mass, pl[j-num_asteroids].mass, distMatrix[i][j], angleMatrix[i][j]);
-
+                    cout << "Computing force X of planet: "<<(j-num_asteroids)<<" over asteroid: "<<i<<" -->" << forcesMatrixX[i][j]<<endl;
                     forcesMatrixY[i][j]=computeForceY(ast[i].mass, pl[j-num_asteroids].mass, distMatrix[i][j], angleMatrix[i][j]);
 
                   }
@@ -272,8 +274,10 @@ int main(int argc, char const *argv[]) {
             }
             //Results should be updated once the rows are filled so all the forces acting on an asteroid are computed
             //acc
-            accx=computeAcc(i, forcesMatrixX[i], ast[i].mass);
-            accy=computeAcc(i, forcesMatrixY[i], ast[i].mass);
+            accx=computeAcc(num_asteroids+num_planets, forcesMatrixX[i], ast[i].mass);
+            cout << "Computing acc X of asteroid: "<<i<<" -->"<< accx<<endl;
+            accy=computeAcc(num_asteroids+num_planets, forcesMatrixY[i], ast[i].mass);
+
             //vel
             ast[i].vx=ast[i].vx+(accx*INTERVAL);
             ast[i].vy=ast[i].vy+(accy*INTERVAL);
