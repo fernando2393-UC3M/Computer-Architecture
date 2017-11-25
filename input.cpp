@@ -372,7 +372,7 @@ int main(int argc, char const *argv[]) {
         //activated, locating all the asteroids that are inside its range of influence.
 
         //All asteroids whose vertical coordinate is at a distance less or equal
-        //than 2 from the position of the ray (in the y axis) will be destroyed.
+        //than RAY_WIDTH/2 from the position of the ray (in the y axis) will be destroyed.
 
         //The destruction of these asteroids imply the removal of these asteroids from the program
 
