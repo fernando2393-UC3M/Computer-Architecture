@@ -56,6 +56,7 @@ void random(const unsigned int seed, int num_asteroids, int num_planets, std::ve
                         pl.push_back(planets());
                         pl[i].x = 0;
                         pl[i].y = ydist(re);
+                        pl[i].mass = 10 * mdist(re);
                         for (int j = 0; j < aux; j++) {
                                 if (pl[j].x == pl[aux1].x && pl[j].y == pl[aux1].y) {
                                         pl.erase(pl.begin()+i);
@@ -67,6 +68,7 @@ void random(const unsigned int seed, int num_asteroids, int num_planets, std::ve
                         pl.push_back(planets());
                         pl[i].x = xdist(re);
                         pl[i].y = HEIGHT;
+                        pl[i].mass = 10 * mdist(re);
                         for (int j = 0; j < aux; j++) {
                                 if (pl[j].x == pl[aux1].x && pl[j].y == pl[aux1].y) {
                                         pl.erase(pl.begin()+i);
@@ -78,6 +80,7 @@ void random(const unsigned int seed, int num_asteroids, int num_planets, std::ve
                         pl.push_back(planets());
                         pl[i].x = WIDTH;
                         pl[i].y = xdist(re);
+                        pl[i].mass = 10 * mdist(re);
                         for (int j = 0; j < aux; j++) {
                                 if (pl[j].x == pl[aux1].x && pl[j].y == pl[aux1].y) {
                                         pl.erase(pl.begin()+i);
@@ -89,6 +92,7 @@ void random(const unsigned int seed, int num_asteroids, int num_planets, std::ve
                         pl.push_back(planets());
                         pl[i].x = xdist(re);
                         pl[i].y = 0;
+                        pl[i].mass = 10 * mdist(re);
                         for (int j = 0; j < aux; j++) {
                                 if (pl[j].x == pl[aux1].x && pl[j].y == pl[aux1].y) {
                                         pl.erase(pl.begin()+i);
@@ -99,7 +103,6 @@ void random(const unsigned int seed, int num_asteroids, int num_planets, std::ve
                 default:
                         cout << "Invalid position" << endl;
                 }
-                pl[i].mass = 10 * mdist(re);
         }
 }
 
@@ -186,11 +189,17 @@ int checkRebound(double x, double y){
         return 0;
 }
 
-void releaseGalactus(double target, std::vector<asteroids> &ast){
-        for(unsigned long i=0; i<ast.size(); i++) {
-                if(ast[i].y >= (target - (RAY_WIDTH/2)) && ast[i].y <= (target + (RAY_WIDTH/2))) {
-                        ast.erase(ast.begin()+i);
-                        cout << "Asteroid " << i << " was devoured by GALACTUS" << endl;
+void releaseGalactus(double target, std::vector<asteroids> &ast, int num_asteroids){
+        unsigned long aux = num_asteroids; //Aux var number of ast to not to be modified
+        unsigned long counter = 0; //Counter of asteroids erased
+        for(unsigned long i=0; i<aux; i++) {
+                if(ast[i].y >= (target - (RAY_WIDTH/2)) && ast[i].y <= (target + (RAY_WIDTH/2))) { //If asteroid is inside the range
+                        aux--; //Reduce aux -> number of alive asteroids
+                        ast.erase(ast.begin()+i); //Erase asteroid from vector
+                        i--; //As number reduced, next asteroids go one position back, so iterate over the same position
+                        counter++; //Increment counter of death asteroids by one
+                        cout << "Asteroid " << i + counter << " was devoured by GALACTUS" << endl; //Asteroid destroyed message, taking as number the one
+                                                                                                   //it had over the initial number of asteroids in the universe
                 }
         }
 }
@@ -356,7 +365,7 @@ int main(int argc, char const *argv[]) {
                                 ast[i].y=ast[i].y+(ast[i].vy*INTERVAL);
                         }
                 }
-                releaseGalactus(pos_ray, ast);
+                releaseGalactus(pos_ray, ast, num_asteroids);
         }
 
         //After computing the movement due to the forces, the laser ray must be
