@@ -189,19 +189,22 @@ int checkRebound(double x, double y){
         return 0;
 }
 
-void releaseGalactus(double target, std::vector<asteroids> &ast, int num_asteroids){
+void releaseGalactus(double target, std::vector<asteroids> &ast, int num_asteroids, long counter){
         unsigned long aux = num_asteroids; //Aux var number of ast to not to be modified
-        unsigned long counter = 0; //Counter of asteroids erased
         for(unsigned long i=0; i<aux; i++) {
                 if(ast[i].y >= (target - (RAY_WIDTH/2)) && ast[i].y <= (target + (RAY_WIDTH/2))) { //If asteroid is inside the range
                         aux--; //Reduce aux -> number of alive asteroids
                         ast.erase(ast.begin()+i); //Erase asteroid from vector
                         i--; //As number reduced, next asteroids go one position back, so iterate over the same position
                         counter++; //Increment counter of death asteroids by one
+
+                        //EXPLAIN HERE WHY THE NUMBER IS INCORRECT
+                        
                         cout << "Asteroid " << i + counter << " was devoured by GALACTUS" << endl; //Asteroid destroyed message, taking as number the one
                                                                                                    //it had over the initial number of asteroids in the universe
                 }
         }
+        cout << "There are " << num_asteroids-counter << " remaining asteroids" << endl;
 }
 
 int main(int argc, char const *argv[]) {
@@ -217,6 +220,7 @@ int main(int argc, char const *argv[]) {
         int num_planets = atoi(argv[3]);
         double pos_ray = stod(argv[4]);
         const auto seed = (unsigned int) atoi(argv[5]);
+        long counter = 0; //Counter of asteroids erased
 
         if(num_asteroids<0) {
                 cerr << "nasteroids-seq: Wrong arguments." << endl;
@@ -365,7 +369,7 @@ int main(int argc, char const *argv[]) {
                                 ast[i].y=ast[i].y+(ast[i].vy*INTERVAL);
                         }
                 }
-                releaseGalactus(pos_ray, ast, num_asteroids);
+                releaseGalactus(pos_ray, ast, num_asteroids, counter);
         }
 
         //After computing the movement due to the forces, the laser ray must be
