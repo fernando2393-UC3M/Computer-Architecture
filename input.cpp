@@ -275,7 +275,8 @@ int main(int argc, char const *argv[]) {
 
                 for(int i = 0; i < num_planets; i++) {
                         myFile << pl[i].x << " ";
-                        myFile << pl[i].y << endl;
+                        myFile << pl[i].y << " ";
+                        myFile << pl[i].mass << endl;
                 }
 
                 myFile << 0.000 << " ";
