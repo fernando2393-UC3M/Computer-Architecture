@@ -4,7 +4,11 @@
 #include <random>
 #include <math.h>
 #include <vector>
+#include <chrono>
 using namespace std;
+using namespace std::chrono;
+
+using clk = high_resolution_clock;
 
 const double GRAVITY = 6.674e-5;
 const double INTERVAL = 0.1;
@@ -208,6 +212,8 @@ void releaseGalactus(double target, std::vector<asteroids> &ast, int num_asteroi
 }
 
 int main(int argc, char const *argv[]) {
+  auto t1 = clk::now();
+
         if(argc != 6) {
                 cerr << "nasteroids-seq: Wrong arguments." << endl;
                 cerr << "Correct use:" << endl;
@@ -397,6 +403,11 @@ int main(int argc, char const *argv[]) {
         else{
                 cerr << "Error creating the file!" << endl;
         }
+
+        auto t2 = clk::now();
+        auto diff = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
+
+        cout << "Time= " << diff.count() << " microseconds" << endl;
 
         return 0;
 }
