@@ -126,7 +126,7 @@ double computeAngle(double xa, double ya, double xb, double yb){
 
         slope=(ya-yb)/(xa-xb);
         //Correction for the slope
-        if(slope>1 || slope<-1) {
+        if((slope>1 || slope<-1) && !isinf(slope)) {
                 slope=slope-trunc(slope);
         }
         angle= atan(slope);
@@ -163,13 +163,10 @@ double computeForceY(double ma, double mb, double dist, double ang){
 double computeAcc(int length, std::vector<double> vforces, double mass){
         double acc;
 
-        #pragma omp parallel num_threads(4){
-          for(int i=0; i<length; i++) {
-              #pragma omp atomic
-                  acc=acc+vforces[i];
-          }
-
+        for(int i=0; i<length; i++) {
+                acc=acc+vforces[i];
         }
+
         acc=acc/mass;
 
         return acc;
@@ -200,15 +197,12 @@ int checkRebound(double x, double y){
 
 void releaseGalactus(double target, std::vector<asteroids> &ast, int num_asteroids){
         unsigned long aux = num_asteroids; //Aux var number of ast to not to be modified
-        #pragma omp parallel for num_threads(4)
-        {
-          for(unsigned long i=0; i<aux; i++) {
-                  if(ast[i].y >= (target - (RAY_WIDTH/2)) && ast[i].y <= (target + (RAY_WIDTH/2))) { //If asteroid is inside the range
-                          aux--; //Reduce aux -> number of alive asteroids
-                          ast.erase(ast.begin()+i); //Erase asteroid from vector
-                          i--; //As number reduced, next asteroids go one position back, so iterate over the same position
-                  }
-          }
+        for(unsigned long i=0; i<aux; i++) {
+                if(ast[i].y >= (target - (RAY_WIDTH/2)) && ast[i].y <= (target + (RAY_WIDTH/2))) { //If asteroid is inside the range
+                        aux--; //Reduce aux -> number of alive asteroids
+                        ast.erase(ast.begin()+i); //Erase asteroid from vector
+                        i--; //As number reduced, next asteroids go one position back, so iterate over the same position
+                }
         }
 }
 
@@ -258,6 +252,8 @@ int main(int argc, char const *argv[]) {
 
         std::vector<asteroids> ast;
         std::vector<planets> pl;
+
+        omp_set_num_threads(4);
 
         random(seed, num_asteroids, num_planets, ast, pl);
 
@@ -311,7 +307,10 @@ int main(int argc, char const *argv[]) {
         for(int t=0; t<num_iterations; t++) {
                 accx=0;
                 accy=0;
+
+                // #pragma omp parallel for reduction(+:accx, accy)
                 for(int i=0; i< num_asteroids; i++) {
+      #pragma omp parallel for
                         for(int j=0; j<(num_asteroids+num_planets); j++) {
                                 if(i!=j) { //Avoid evaluate i with itself
                                         if(j<num_asteroids) { //ASTEROID
@@ -349,7 +348,9 @@ int main(int argc, char const *argv[]) {
                         }
                         //Results should be updated once the rows are filled so all the forces acting on an asteroid are computed
                         //acc
+#pragma omp critical
                         accx=computeAcc(num_planets+num_asteroids, forcesMatrixX[i], ast[i].mass);
+#pragma omp critical
                         accy=computeAcc(num_planets+num_asteroids, forcesMatrixY[i], ast[i].mass);
                         //vel
                         ast[i].vx=ast[i].vx+(accx*INTERVAL);
@@ -407,6 +408,7 @@ int main(int argc, char const *argv[]) {
 
         double t2 = omp_get_wtime();
         double diff = t2-t1;
+        diff = diff*1000000;
 
         cout << "Time= " << diff << " microseconds" << endl;
 
