@@ -5,6 +5,7 @@
 #include <math.h>
 #include <vector>
 #include <chrono>
+#include <omp.h>
 using namespace std;
 using namespace std::chrono;
 
@@ -22,7 +23,7 @@ const double MAXFORCE = 200;
 
 
 struct asteroids {
-        double x, y, vx,vy, ax, ay, mass, id;
+        double x, y, vx,vy, ax, ay, mass;
 };
 
 struct planets {
@@ -40,7 +41,6 @@ void random(const unsigned int seed, int num_asteroids, int num_planets, std::ve
                 ast[i].x = xdist(re);
                 ast[i].y = ydist(re);
                 ast[i].mass = mdist(re);
-                ast[i].id = i;
                 //Now check for repeated position -> Remove and recalculate
                 for(int j = 0; j < i; j++) {
                         if(ast[j].x == ast[i].x && ast[j].y == ast[i].y) {
@@ -163,8 +163,12 @@ double computeForceY(double ma, double mb, double dist, double ang){
 double computeAcc(int length, std::vector<double> vforces, double mass){
         double acc;
 
-        for(int i=0; i<length; i++) {
-                acc=acc+vforces[i];
+        #pragma omp parallel num_threads(4){
+          for(int i=0; i<length; i++) {
+              #pragma omp atomic
+                  acc=acc+vforces[i];
+          }
+
         }
         acc=acc/mass;
 
@@ -196,23 +200,20 @@ int checkRebound(double x, double y){
 
 void releaseGalactus(double target, std::vector<asteroids> &ast, int num_asteroids){
         unsigned long aux = num_asteroids; //Aux var number of ast to not to be modified
-        for(unsigned long i=0; i<aux; i++) {
-                if(ast[i].y >= (target - (RAY_WIDTH/2)) && ast[i].y <= (target + (RAY_WIDTH/2))) { //If asteroid is inside the range
-                        aux--; //Reduce aux -> number of alive asteroids
-                        int id = ast[i].id;
-                        ast.erase(ast.begin()+i); //Erase asteroid from vector
-                        i--; //As number reduced, next asteroids go one position back, so iterate over the same position
-
-                        //EXPLAIN HERE WHY THE NUMBER IS INCORRECT
-
-                        cout << "Asteroid " << id << " was devoured by GALACTUS" << endl; //Asteroid destroyed message, taking as number the one
-                                                                                                   //it had over the initial number of asteroids in the universe
-                }
+        #pragma omp parallel for num_threads(4)
+        {
+          for(unsigned long i=0; i<aux; i++) {
+                  if(ast[i].y >= (target - (RAY_WIDTH/2)) && ast[i].y <= (target + (RAY_WIDTH/2))) { //If asteroid is inside the range
+                          aux--; //Reduce aux -> number of alive asteroids
+                          ast.erase(ast.begin()+i); //Erase asteroid from vector
+                          i--; //As number reduced, next asteroids go one position back, so iterate over the same position
+                  }
+          }
         }
 }
 
 int main(int argc, char const *argv[]) {
-  auto t1 = clk::now();
+        double t1 = omp_get_wtime();
 
         if(argc != 6) {
                 cerr << "nasteroids-seq: Wrong arguments." << endl;
@@ -404,10 +405,10 @@ int main(int argc, char const *argv[]) {
                 cerr << "Error creating the file!" << endl;
         }
 
-        auto t2 = clk::now();
-        auto diff = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
+        double t2 = omp_get_wtime();
+        double diff = t2-t1;
 
-        cout << "Time= " << diff.count() << " microseconds" << endl;
+        cout << "Time= " << diff << " microseconds" << endl;
 
         return 0;
 }
