@@ -150,7 +150,7 @@ double computeForceY(double ma, double mb, double dist, double ang){
         double f;
 
         f=GRAVITY*ma*mb;
-        f=f/dist;
+        f=f/pow(dist, 2);
         f=f*sin(ang);
 
         if(f>MAXFORCE) {
