@@ -193,8 +193,8 @@ int checkRebound(double x, double y){
         return 0;
 }
 
-void releaseGalactus(double target, std::vector<asteroids> &ast, int num_asteroids){
-        unsigned long aux = num_asteroids; //Aux var number of ast to not to be modified
+void releaseGalactus(double target, std::vector<asteroids> &ast){
+        unsigned long aux = ast.size(); //Aux var number of ast to not to be modified
         for(unsigned long i=0; i<aux; i++) {
                 if(ast[i].y >= (target - (RAY_WIDTH/2)) && ast[i].y <= (target + (RAY_WIDTH/2))) { //If asteroid is inside the range
                         aux--; //Reduce aux -> number of alive asteroids
@@ -368,7 +368,7 @@ int main(int argc, char const *argv[]) {
                                 ast[i].y=ast[i].y+(ast[i].vy*INTERVAL);
                         }
                 }
-                releaseGalactus(pos_ray, ast, num_asteroids);
+                releaseGalactus(pos_ray, ast);
         }
 
         //After computing the movement due to the forces, the laser ray must be
@@ -385,7 +385,7 @@ int main(int argc, char const *argv[]) {
         myFile2.setf(ios::fixed,ios::floatfield);
         myFile2.precision(3);
         if(myFile2.is_open()) {
-                for(int i = 0; i < num_asteroids; i++) {
+                for(unsigned int i = 0; i < ast.size(); i++) {
                         myFile2 << ast[i].x << " ";
                         myFile2 << ast[i].y << " ";
                         myFile2 << ast[i].vx << " ";
