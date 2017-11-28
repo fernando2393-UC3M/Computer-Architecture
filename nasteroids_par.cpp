@@ -196,10 +196,8 @@ int checkRebound(double x, double y){
 }
 
 void releaseGalactus(double target, std::vector<asteroids> &ast){
-        unsigned long aux = ast.size(); //Aux var number of ast to not to be modified
-        for(unsigned long i=0; i<aux; i++) {
+        for(unsigned long i=0; i<ast.size(); i++) {
                 if(ast[i].y >= (target - (RAY_WIDTH/2)) && ast[i].y <= (target + (RAY_WIDTH/2))) { //If asteroid is inside the range
-                        aux--; //Reduce aux -> number of alive asteroids
                         ast.erase(ast.begin()+i); //Erase asteroid from vector
                         i--; //As number reduced, next asteroids go one position back, so iterate over the same position
                 }
