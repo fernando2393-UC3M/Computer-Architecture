@@ -400,7 +400,7 @@ int main(int argc, char const *argv[]) {
         auto t2 = clk::now();
         auto diff = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
 
-        cout << "Time= " << diff.count() << " microseconds" << endl;
+        cout << diff.count() << endl;
 
         return 0;
 }

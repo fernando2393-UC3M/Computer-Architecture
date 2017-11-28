@@ -410,7 +410,7 @@ int main(int argc, char const *argv[]) {
         double diff = t2-t1;
         diff = diff*1000000;
 
-        cout << "Time= " << diff << " microseconds" << endl;
+        cout << diff << endl;
 
         return 0;
 }
