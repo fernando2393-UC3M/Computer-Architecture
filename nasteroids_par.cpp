@@ -207,7 +207,7 @@ void releaseGalactus(double target, std::vector<asteroids> &ast, int num_asteroi
 }
 
 int main(int argc, char const *argv[]) {
-        double t1 = omp_get_wtime();
+        auto t1 = clk::now();
 
         if(argc != 6) {
                 cerr << "nasteroids-seq: Wrong arguments." << endl;
@@ -406,11 +406,10 @@ int main(int argc, char const *argv[]) {
                 cerr << "Error creating the file!" << endl;
         }
 
-        double t2 = omp_get_wtime();
-        double diff = t2-t1;
-        diff = diff*1000000;
+        auto t2 = clk::now();
+        auto diff = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
 
-        cout << diff << endl;
+        cout << diff.count() << endl;
 
         return 0;
 }
