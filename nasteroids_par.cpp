@@ -161,7 +161,7 @@ double computeForceY(double ma, double mb, double dist, double ang){
 }
 
 double computeAcc(int length, std::vector<double> vforces, double mass){
-        double acc;
+        double acc = 0;
 
         for(int i=0; i<length; i++) {
                 acc=acc+vforces[i];
