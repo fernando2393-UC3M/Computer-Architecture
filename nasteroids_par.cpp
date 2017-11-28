@@ -346,9 +346,8 @@ int main(int argc, char const *argv[]) {
                         }
                         //Results should be updated once the rows are filled so all the forces acting on an asteroid are computed
                         //acc
-#pragma omp critical
+
                         accx=computeAcc(num_planets+num_asteroids, forcesMatrixX[i], ast[i].mass);
-#pragma omp critical
                         accy=computeAcc(num_planets+num_asteroids, forcesMatrixY[i], ast[i].mass);
                         //vel
                         ast[i].vx=ast[i].vx+(accx*INTERVAL);
