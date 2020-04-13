@@ -1,2 +1,3 @@
-# ARCOS
-Practices of Computer Architecture
+# Computer Architecture
+
+This repository contains the different projects of the UC3M Computer Architecture course.
